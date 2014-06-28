@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Scorecard Dashboard</title>
+  <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
+  
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>-->
+
+  <script src="//code.jquery.com/jquery-1.11.1.js"></script>
+  <!--<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
+
+  <style type="text/css">
+  body {
+    font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+  }
+  .comboWrapper {
+    width: 100%;
+    clear: both;
+  }
+  #chartAllRounds, #chartSingleRound {
+    min-width: 400px;
+    width: 80%;
+    height: 400px;
+    margin: 0 auto;
+    float: left;
+    xclear: both;
+  }
+  #statsAllRounds {
+    width: 20%;
+    float: right;
+  }
+
+  </style>
+
+  <script src="scorecard-ctrl.js"></script>
+
+  <script>
+
+  var MyDash = new ScorecardDashboard();
+  MyDash.initData();
+
+
+
+
+  $( document ).ready(function() {
+    // on document ready ...
+
+    // load and calculate the Scorecard Data
+    $.get( "scorecard.tsv", function( data ) {
+      MyDash.createDataFromTsv(data);
+      MyDash.calculateAllData();
+    });
+
+    $("#btnChartAllRounds").click(function() {
+      MyDash.showChartAllRounds("#chartAllRounds");
+    });
+
+    $("#btnChart1").click(function() {
+      var chartSeries = MyDash.getSeriesChart1();
+      $("#chart1").highcharts({
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'Golf-Auswertung'
+        },
+        xAxis: {
+          categories: [
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9'
+          ]
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Stableford Netto (Pts)'
+          }
+        },
+        series: chartSeries
+      });
+    });
+
+  }); // document.ready
+    
+
+  
+  </script>
+  
+</head>
+<body>
+  <script src="js/highcharts.js"></script>
+  <script src="js/modules/exporting.js"></script>
+
+
+<div id="menu">
+<!-- <button id="loaddata">load data</button> -->
+<button id="btnChartAllRounds">All Rounds</button>
+</div>
+
+<div class="comboWrapper">
+  <div id="chartAllRounds"></div>
+
+  <div id="statsAllRounds">Statictics</div>
+</div>
+  
+<div class="comboWrapper">
+  <div id="chartSingleRound"></div>
+</div>
+
+</body>
+</html>
