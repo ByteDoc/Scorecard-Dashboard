@@ -1,13 +1,17 @@
+/*global $, MyDash */
+/* exported ScorecardDashboard */
+"use strict";
+
 function ScorecardDashboardHelper() {
   this.round = {};
 
   this.chart = {};
 
-  this.chart.getTooltip = function(round) {
+  this.chart.getTooltip = function() {
     var tooltip = {};
-    debugger;
-    tooltip.headerFormat = '<b>{series.name}</b><br>';
-    tooltip.pointFormat = '{point.x:%e. %b}: {point.y} pts<br /><a href="#">Round {point.myRound}</a>';
+    //debugger;
+    tooltip.headerFormat = "<b>{series.name}</b><br>";
+    tooltip.pointFormat = "{point.x:%e. %b}: {point.y} pts<br /><a href='#''>Round {point.myRound.nr}</a>";
     return tooltip;
   };
 
@@ -17,7 +21,7 @@ var MyHelper = new ScorecardDashboardHelper();
 
 // Class definition
 function ScorecardDashboard() {
-  this.testvar = 'max';
+  this.testvar = "max";
 
 
   this.initData = function() {
@@ -27,12 +31,12 @@ function ScorecardDashboard() {
 
   this.initPlayers = function() {
     this.data.players = {};
-    this.addPlayer('Max');
+    this.addPlayer("Max");
   };
 
   this.addPlayer = function(name) {
     // only works for 'Max' right now, because data is hard coded
-    name = 'Max';
+    name = "Max";
     var playerMax = {};
     this.data.players[name] = playerMax;
     
@@ -43,7 +47,7 @@ function ScorecardDashboard() {
       handicap: 45
     } );
     playerMax.handicapHistory.push( {
-      fromDate: new Date(2013, 08, 07),
+      fromDate: new Date(2013, 8, 7),
       handicap: 43
     } );
   };
@@ -53,8 +57,8 @@ function ScorecardDashboard() {
     for (var i = player.handicapHistory.length - 1; i >= 0; i--) {
       if (date > player.handicapHistory[i].fromDate) {
         return player.handicapHistory[i].handicap;
-      };
-    };
+      }
+    }
     return 45;
   };
 
@@ -65,15 +69,16 @@ function ScorecardDashboard() {
       if(this.data.rounds[i].nr == roundNr) {
         return this.data.rounds[i];
       }
-    };
+    }
   };
 
 
   this.calculateHole = function(hole) {
-    hole.stablefordHandicap = this.calculateStablefordHandicap(hole.round.handicap, hole.round.course.holes[hole.nr].handicapRank);
-    hole.stablefordNettoPts = this.calculateStablefordPts(hole.round.course.holes[hole.nr].par, hole.strokes, hole.stablefordHandicap);
-    hole.stablefordBruttoPts = this.calculateStablefordBruttoPts(hole.round.course.holes[hole.nr].par, hole.strokes);
-    hole.proResult = hole.strokes - hole.round.course.holes[hole.nr].par;
+    var round = this.getRound(hole.roundNr);
+    hole.stablefordHandicap = this.calculateStablefordHandicap(round.handicap, round.course.holes[hole.nr].handicapRank);
+    hole.stablefordNettoPts = this.calculateStablefordPts(round.course.holes[hole.nr].par, hole.strokes, hole.stablefordHandicap);
+    hole.stablefordBruttoPts = this.calculateStablefordBruttoPts(round.course.holes[hole.nr].par, hole.strokes);
+    hole.proResult = hole.strokes - round.course.holes[hole.nr].par;
     hole.greenInStrokes = hole.strokes - hole.putts;
     return hole;
   };
@@ -83,7 +88,7 @@ function ScorecardDashboard() {
   };
 
   this.calculateStablefordPts = function(par, strokes, handicap) {
-    if(strokes == 0) {
+    if(strokes === 0) {
       return 0;
     }
     var pts = 0;
@@ -108,7 +113,7 @@ function ScorecardDashboard() {
     round.duration = this.getDuration(round.start, round.end);
     round.durationHours = Math.floor(round.duration / 36e5);
     round.durationMinutes = Math.floor(round.duration % 36e5 / 60000);
-    round.durationString = round.durationHours + ':' + round.durationMinutes;
+    round.durationString = round.durationHours + ":" + round.durationMinutes;
 
     // initialize the sums
     round.strokes = 0;
@@ -159,7 +164,7 @@ function ScorecardDashboard() {
   this.calculateAllData = function() {
     for (var r = 0; r < this.data.rounds.length; r++) {
       this.data.rounds[r] = this.calculateRound(this.data.rounds[r]);
-    };
+    }
   };
 
   this.createDataFromTsv = function(importData) {
@@ -175,14 +180,14 @@ function ScorecardDashboard() {
     conf.datalineDistanceWomen = 3;
     conf.datalineHandicap      = 4;
 
-    conf.datacolInfo           = 0;
+    conf.datacolInfo           = 20;
     conf.datacolDate           = 21;
     conf.datacolStart          = 22;
     conf.datacolEnd            = 23;
     conf.datacolWeather        = 24;
     conf.datacolFlight         = 25;
     conf.datacolFlightPartners = 26;
-    conf.datacolTournament     = 27
+    conf.datacolTournament     = 27;
     conf.datacolNotes          = 28;
     conf.datacolHandicap       = 29;
     conf.datacolHolesPlayed    = 30;
@@ -191,7 +196,7 @@ function ScorecardDashboard() {
     this.data.courses = {};
     // add the course for GCL
     var course = {
-      name: 'GC St. Lorenzen',
+      name: "GC St. Lorenzen",
       courseid: 9,
       holes: {}
     };
@@ -200,6 +205,8 @@ function ScorecardDashboard() {
       // TODO Platzvorgaben eingeben
       // Berechnung anhand persönlicher Vorgabe und Platzvorgabe
       // bis dahin mal immer 45 retournieren
+      if(player) {}
+      if(date) {}
       return 45;
     };
     // add the holes to GCL course
@@ -221,8 +228,8 @@ function ScorecardDashboard() {
         course.holes[holeNr].distanceWomen = arrDistanceWomenLine[h] * 1;
         course.holes[holeNr].handicapRank = arrHandicapLine[h] * 1;
         holeNr++;
-      };
-    };
+      }
+    }
 
     // Add the played rounds
     var roundNr = 0;
@@ -235,7 +242,7 @@ function ScorecardDashboard() {
 
       // new round starting with this line
       // add all information for the round
-      if (arrLine[conf.datacolInfo] == 'Schläge') {
+      if (arrLine[conf.datacolInfo] == "Schläge") {
         roundNr++;
         round = {};
         this.data.rounds.push(round);
@@ -252,7 +259,7 @@ function ScorecardDashboard() {
         // only rounds in GCL so far
         round.course = this.data.courses[9];
         // only rounds by Max so far
-        round.player = this.data.players['Max'];
+        round.player = this.data.players.Max;
 
         // get the next/relevant lines
         var arrNextLine = [];
@@ -265,42 +272,42 @@ function ScorecardDashboard() {
           nextLineIndex++;
           arrNextLine = lines[nextLineIndex].split(/\t/);
           switch (arrNextLine[conf.datacolInfo]) {
-            case 'Putts':
+            case "Putts":
               arrLinePutts = arrNextLine;
               break;
-            case 'Penalties':
+            case "Penalties":
               arrLinePenalties = arrNextLine;
               break;
-            case 'Girlies':
+            case "Girlies":
               arrLineGirlies = arrNextLine;
               break;
-            case 'Lost Balls':
+            case "Lost Balls":
               arrLineLostBalls = arrNextLine;
               break;
           }
-        } while (arrNextLine[conf.datacolInfo] != "");
+        } while (arrNextLine[conf.datacolInfo] !== "");
 
         // add the holes with their information
         round.holes = {};
-        for (var h = 1; h < arrIndices.length; h++) {
-          if (arrLine[arrIndices[h]] == '') { continue; };
+        for (var j = 1; j < arrIndices.length; j++) {
+          if (arrLine[arrIndices[j]] === "") { continue; }
           hole = {};
-          round.holes[h] = hole;
-          hole.round     = round; // BACKREFERENCE !
-          hole.nr        = h;
-          hole.strokes   = this.intOrZero(arrLine[arrIndices[h]]);
-          hole.putts     = this.intOrZero(arrLinePutts[arrIndices[h]]);
-          hole.penalties = this.intOrZero(arrLinePenalties[arrIndices[h]]);
-          hole.girlies   = this.intOrZero(arrLineGirlies[arrIndices[h]]);
-          hole.lostBalls = this.intOrZero(arrLineLostBalls[arrIndices[h]]);
-          // arrIndices[h]
-        };
-      };
+          round.holes[j] = hole;
+          hole.roundNr   = round.nr; // BACKREFERENCE if round is used directly!
+          hole.nr        = j;
+          hole.strokes   = this.intOrZero(arrLine[arrIndices[j]]);
+          hole.putts     = this.intOrZero(arrLinePutts[arrIndices[j]]);
+          hole.penalties = this.intOrZero(arrLinePenalties[arrIndices[j]]);
+          hole.girlies   = this.intOrZero(arrLineGirlies[arrIndices[j]]);
+          hole.lostBalls = this.intOrZero(arrLineLostBalls[arrIndices[j]]);
+          // arrIndices[j]
+        }
+      }
       // exit if TEMPLATE line is reached
-      if (arrLine[conf.datacolInfo] == 'TEMPLATE') {
+      if (arrLine[conf.datacolInfo] == "TEMPLATE") {
         break;
-      };
-    };
+      }
+    }
   };
 
   this.intOrZero = function(intValue) {
@@ -314,9 +321,9 @@ function ScorecardDashboard() {
   // parse a date in yyyy-mm-dd format
   // parse a time in hh:mm format
   this.parseDate = function(inputDate, inputTime) {
-    if (inputTime == null) { inputTime = '06:00'};
-    var partsDate = inputDate.split('-');
-    var partsTime = inputTime.split(':');
+    if (inputTime === null) { inputTime = "06:00";}
+    var partsDate = inputDate.split("-");
+    var partsTime = inputTime.split(":");
     // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
     return new Date(partsDate[0], partsDate[1]-1, partsDate[2], partsTime[0], partsTime[1]); // Note: months are 0-based
   };
@@ -348,7 +355,7 @@ function ScorecardDashboard() {
     var chartSeries = this.getChartSeriesSingleRound(round);
       $("#chartSingleRound").highcharts({
         chart: {
-          type: 'column'
+          type: "column"
         },
         title: {
           text: this.getRoundTitle(round)
@@ -357,7 +364,7 @@ function ScorecardDashboard() {
         yAxis: {
           min: 0,
           title: {
-            text: 'Stableford Netto (Pts)'
+            text: "Stableford Netto (Pts)"
           }
         },
         series: chartSeries
@@ -366,7 +373,7 @@ function ScorecardDashboard() {
     
   this.getChartXAxis = function(round) {
     var axis = {};
-    axis.categories = []
+    axis.categories = [];
     $.each( round.holes, function( holeNr, hole ) {
       axis.categories.push(hole.nr);
     });
@@ -376,7 +383,7 @@ function ScorecardDashboard() {
   this.getChartSeriesSingleRound = function(round) {
     var series = [];
     series.push({
-      name: 'Stablefor Netto (Pts)',
+      name: "Stableford Netto (Pts)",
       data: this.getDataStablefordNettoPtsForRound(round)
     });
     return series;
@@ -393,14 +400,14 @@ function ScorecardDashboard() {
   this.getSeriesChartAllRounds = function() {
     var series = [];
     series.push({
-      name: 'Full 18 holes',
-      data: this.getDataStablefordNettoPtsForAllRounds(this.data.rounds, 'full'),
-      color: '#33f'
+      name: "Full 18 holes",
+      data: this.getDataStablefordNettoPtsForAllRounds(this.data.rounds, "full"),
+      color: "#33f"
     });
     series.push({
-      name: 'Short (9) rounds',
-      data: this.getDataStablefordNettoPtsForAllRounds(this.data.rounds, 'short'),
-      color: '#99f'
+      name: "Short (9) rounds",
+      data: this.getDataStablefordNettoPtsForAllRounds(this.data.rounds, "short"),
+      color: "#99f"
     });
     return series;
   };
@@ -415,11 +422,11 @@ function ScorecardDashboard() {
       // calculate the 18-hole equivalent for 9-hole or other shorter rounds
       pts = rounds[i].stablefordNettoPts / rounds[i].holesPlayed * 18;
       includeData = false;
-      if(filter === undefined || filter == '') {
+      if(filter === undefined || filter === "") {
         includeData = true;
-      } else if(filter == 'full' && rounds[i].holesPlayed == 18) {
+      } else if(filter == "full" && rounds[i].holesPlayed == 18) {
         includeData = true;
-      } else if(filter == 'short' && rounds[i].holesPlayed < 18) {
+      } else if(filter == "short" && rounds[i].holesPlayed < 18) {
         includeData = true;
       }
       if(includeData) {
@@ -428,62 +435,123 @@ function ScorecardDashboard() {
         dataObject.y = pts;
         dataObject.myRound = rounds[i];
         dataObject.color = this.getColorForPointRound(rounds[i]);
-        if(rounds[i].tournament != "") {
+        if(rounds[i].tournament !== "") {
           dataObject.marker = {};
           dataObject.marker.symbol = "diamond";
-          dataObject.color = '#f00';
+          dataObject.color = "#f00";
         }
         data.push(dataObject);
         // data.push([d, pts]);
       }
-    };
+    }
     return data;
   };
 
   this.getColorForPointRound = function(round) {
     var color = "";
     if(round.holesPlayed == 18) {
-      color = '#33f';
+      color = "#33f";
     } else {
-      color = '#99f';
+      color = "#99f";
     }
     return color;
+  };
+
+
+  this.showStatsAllRounds = function(min, max) {
+    var html = "";
+    html += "<h3>Statistics</h3>";
+    var minDate = new Date(min);
+    var maxDate = new Date(max);
+    var stats = this.calculcateStatsAllRounds(min, max);
+    html += minDate.getDate() + "." + minDate.getMonth() + "." + minDate.getFullYear();
+    html += " - " + maxDate.getDate() + "." + maxDate.getMonth() + "." + maxDate.getFullYear();
+    html += "<br/>";
+    html += "Rounds: " + stats.stablefordNettoPts.count;
+    html += "<br/>";
+    html += "Average: " + stats.stablefordNettoPts.avg;
+    html += "<br/>";
+    html += "Min: " + stats.stablefordNettoPts.min;
+    html += "<br/>";
+    html += "Max: " + stats.stablefordNettoPts.max;
+    html += "<br/>";
+    // html += "<table>";
+    // html += "<tr><td>"
+    // html += "</table>";
+    $("#statsAllRounds").html(html);
+  };
+
+  this.calculcateStatsAllRounds = function(min, max) {
+    var stats = {};
+    stats.stablefordNettoPts = {};
+    stats.stablefordNettoPts.sum = 0;
+    stats.stablefordNettoPts.min = 99;
+    stats.stablefordNettoPts.max = 0;
+    stats.stablefordNettoPts.avg = 0;
+    stats.stablefordNettoPts.count = 0;
+    var rounds = this.data.rounds;
+    if(min === undefined) min = rounds[0].start;
+    if(max === undefined) max = rounds[rounds.length-1].start;
+    var pts = 0;
+    for (var i = 0; i < rounds.length; i++) {
+      if(rounds[i].start > min && rounds[i].start < max) {
+        // JA, aktuelle Runde berücksichtigen
+        // calculate the 18-hole equivalent for 9-hole or other shorter rounds
+        pts = rounds[i].stablefordNettoPts / rounds[i].holesPlayed * 18;
+        stats.stablefordNettoPts.sum += pts;
+        stats.stablefordNettoPts.min = Math.min(stats.stablefordNettoPts.min, pts);
+        stats.stablefordNettoPts.max = Math.max(stats.stablefordNettoPts.max, pts);
+        stats.stablefordNettoPts.count++;
+      }
+    };
+    stats.stablefordNettoPts.avg = (stats.stablefordNettoPts.sum / stats.stablefordNettoPts.count).toFixed(2);
+    return stats;
   };
 
 
   this.showChartAllRounds = function(elementString) {
     $(elementString).highcharts({
       chart: {
-          type: 'scatter',
-          zoomType: 'x'
+        type: "scatter",
+        zoomType: "x",
+
+        events: {
+          redraw: function(event) {
+            MyDash.showStatsAllRounds(event.currentTarget.xAxis[0].min,event.currentTarget.xAxis[0].max);
+          },
+          load: function(event) {
+            MyDash.showStatsAllRounds(event.currentTarget.xAxis[0].min,event.currentTarget.xAxis[0].max);
+          }
+        }
       },
       title: {
-          text: 'Stableford Netto Result of all played rounds'
+        text: "Stableford Netto Result of all played rounds"
       },
       xAxis: {
-          type: 'datetime',
-          dateTimeLabelFormats: { // don't display the dummy year
-              week: '%e. %b'
-          },
-          title: {
-              text: 'Datum'
-          },
-          events: {
-            setExtremes: function(event) {
-              //debugger;
-            }
+        type: "datetime",
+        dateTimeLabelFormats: { // don't display the dummy year
+          week: "%e. %b"
+        },
+        title: {
+            text: "Datum"
+        },
+        events: {
+          setExtremes: function(event) {
+            if(event) {}
+            //debugger;
           }
+        }
       },
       yAxis: {
-          title: {
-              text: 'Stableford Netto (pts)'
-          },
-          min: 0,
-          plotLines: [{
-              color: '#0000AA',
-              width: 1,
-              value: 36
-          }]
+        title: {
+           text: "Stableford Netto (pts)"
+        },
+        min: 0,
+        plotLines: [{
+          color: "#0000AA",
+          width: 1,
+          value: 36
+        }]
       },
       tooltip: MyHelper.chart.getTooltip(),
 
@@ -491,11 +559,11 @@ function ScorecardDashboard() {
 
       plotOptions: {
         series: {
-          cursor: 'pointer',
+          cursor: "pointer",
           point: {
             events: {
               click: function() {
-                MyDash.loadChartSingleRound(event.point.myRound);
+                MyDash.loadChartSingleRound(event.point.myRound.nr);
               }
             }
           },
@@ -503,11 +571,9 @@ function ScorecardDashboard() {
             lineWidth: 1
           }
         }
-      },
+      }
       
-    })
-  };
-
-
+    });
+  }; // showChartAllRounds
 
 }
